@@ -88,7 +88,7 @@ const CalculatorContainer = React.createClass({
   calculateTotalSavingsMade(value, periodOfYears) {
     let totalValue = value;
     let totalSavings = 0;
-    for (let years = 1; years < periodOfYears; years++) {
+    for (let years = 1; years <= periodOfYears; years++) {
       const totalYield = this.calculateAnnualInvestmentYield(totalValue);
       totalValue += totalYield
       const stashAwayFees = this.calculateAnnualStashAwayFeesCharged(totalValue);
