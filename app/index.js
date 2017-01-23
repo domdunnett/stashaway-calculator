@@ -11,7 +11,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Numeral from 'numeral';
 
-// import CashInput from './components/CashInput';
+import styles from './styles/styles';
+import DisplayBox from './components/DisplayBox';
+import DisplayBoxHeader from './components/DisplayBoxHeader';
 import CurrentFees from './config/currentFees';
 
 const PeriodOfYears = 20;
@@ -20,19 +22,19 @@ const AverageInvestmentYield = 0.05;
 const CalculatorContainer = React.createClass({
   getInitialState() {
     return {
-      initialCashValue: '',
+      initialCashValue: 50000,
       feesCharged: {
-        stashAway: '',
-        advisors: ''
+        stashAway: 375,
+        advisors: 3450
       },
-      savings: ''
+      savings: 22567
     };
   },
 
-  calculateAnnualStashAwayFeesCharged(value) {
+  calculateAnnualStashAwayFees(value) {
     let totalFeeCharged = 0;
     // ------------ First £25,000
-    if (value < 25000) {
+    if (value <= 25000) {
       totalFeeCharged = value * CurrentFees.stashAway.first25k;
     // ------------ Next £25,000
     } else if ( (value > 25000) && (value <= 50000) ) {
@@ -106,36 +108,43 @@ const CalculatorContainer = React.createClass({
     this.setState({
       initialCashValue: Numeral(event.target.value)._value,
       feesCharged: {
-        stashAway: this.calculateAnnualStashAwayFeesCharged(Numeral(event.target.value)._value),
-        advisors: this.calculateAnnualTraditionalAdvisorFeesCharged(Numeral(event.target.value)._value)
+        stashAway: this.calculateAnnualStashAwayFees(Numeral(event.target.value)._value),
+        advisors: this.calculateAnnualTraditionalAdvisorFees(Numeral(event.target.value)._value)
       },
       savings: this.calculateTotalSavingsMade(Numeral(event.target.value)._value, PeriodOfYears)
     });
-
   },
 
   render() {
     return (
-      <div className="col-xs-offset-2 col-xs-8 jumbotron">
-        <p className="lead text-center">Enter an investment amount to see how much you save in fees compared to traditional advisors.</p>
+      <div className="col-xs-offset-2 col-xs-8 jumbotron" style={styles.mainContainer}>
+        <p className="lead text-center">
+          Enter an investment amount to see how much you save in fees compared to traditional advisors.
+        </p>
         <div className="row form-group">
-          <input
-            className="form-control"
-            type="text"
-            onChange={this.updateAllValues}
-            value={this.state.initialCashValue}
-          />
+          <div className="col-xs-offset-4 col-xs-4">
+            <div className="input-group">
+              <span className="input-group-addon">S$</span>
+              <input
+                className="form-control"
+                type="text"
+                placeholder="Your investment..."
+                onChange={this.updateAllValues}
+                value={this.state.initialCashValue}
+                />
+            </div>
+          </div>
         </div>
-        <div className="row bg-success text-center text-info">
+        <div className="row text-center text-info container-fluid" style={styles.displayRow}>
           <div className="row">
-            <span className="col-xs-4 small">StashAway's fees</span>
-            <span className="col-xs-4 small">Traditional advisor's fees (first year)</span>
-            <span className="col-xs-4 small">{`Total savings on fees over ${PeriodOfYears} years`}</span>
+            <DisplayBoxHeader header="StashAway's fees" />
+            <DisplayBoxHeader header="Traditional advisor's fees (first year)" />
+            <DisplayBoxHeader header={`Total savings on fees over ${PeriodOfYears} years`} />
           </div>
           <div className="row">
-            <h3 className="col-xs-4">{`$${Numeral(this.state.feesCharged.stashAway).format('0,0.00')}`}</h3>
-            <h3 className="col-xs-4">{`$${Numeral(this.state.feesCharged.advisors).format('0,0.00')}`}</h3>
-            <h3 className="col-xs-4">{`$${Numeral(this.state.savings).format('0,0.00')}`}</h3>
+            <DisplayBox fee={this.state.feesCharged.stashAway} />
+            <DisplayBox fee={this.state.feesCharged.advisors} />
+            <DisplayBox fee={this.state.savings} />
           </div>
         </div>
       </div>
