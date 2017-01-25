@@ -22,16 +22,16 @@ const AverageInvestmentYield = 0.05;
 const CalculatorContainer = React.createClass({
   getInitialState() {
     return {
-      initialCashValue: 50000,
+      initialCashValue: 0,
       feesCharged: {
-        stashAway: 375,
-        advisors: 3450
+        stashAway: 0,
+        advisors: 0
       },
-      savings: 22567
+      savings: 0
     };
   },
 
-  calculateAnnualStashAwayFees(value) {
+  calculateAnnualStashAwayFeesCharged(value) {
     let totalFeeCharged = 0;
     // ------------ First £25,000
     if (value <= 25000) {
@@ -80,36 +80,53 @@ const CalculatorContainer = React.createClass({
     return totalFeeCharged;
   },
 
-  calculateAnnualTraditionalAdvisorFeesCharged(value) {
-    let totalFeeCharged = 0;
-    totalFeeCharged += value * CurrentFees.traditionalAdvisors.initialFee;
-    totalFeeCharged += (value - totalFeeCharged) * CurrentFees.traditionalAdvisors.annualFee;
-    return totalFeeCharged;
+  calculateInitialTraditionalAdvisorFee(value) {
+    return value * CurrentFees.traditionalAdvisors.initialFee;
   },
 
-  calculateTotalSavingsMade(value, periodOfYears) {
-    let totalValue = value;
-    let totalSavings = 0;
-    for (let years = 1; years <= periodOfYears; years++) {
-      const totalYield = this.calculateAnnualInvestmentYield(totalValue);
-      totalValue += totalYield
-      const stashAwayFees = this.calculateAnnualStashAwayFeesCharged(totalValue);
-      const traditionalAdvisorsFees = this.calculateAnnualTraditionalAdvisorFeesCharged(totalValue);
-      totalSavings += (traditionalAdvisorsFees - stashAwayFees);
-    }
-    return totalSavings;
+  calculateAnnualTraditionalAdvisorFeesCharged(value) {
+    return value * CurrentFees.traditionalAdvisors.annualFee;
   },
 
   calculateAnnualInvestmentYield(value) {
     return value * AverageInvestmentYield;
   },
 
+  calculateTotalSavingsMade(value, periodOfYears) {
+    let stashAwayInvestment = value;
+    let advisorsInvestment = value - this.calculateInitialTraditionalAdvisorFee(value);
+    let stashAwayTotalFees = this.calculateAnnualStashAwayFeesCharged(stashAwayInvestment);
+    let advisorsTotalFees = this.calculateInitialTraditionalAdvisorFee(value);
+    let totalSavings = advisorsTotalFees - stashAwayTotalFees;
+    // Assumes no 5% yield in first year as per example.
+    for (let years = 2; years <= periodOfYears; years++) {
+      // Set/Reset Current Fees
+      let currentStashAwayFees = 0;
+      let currentAdvisorFees = 0;
+      // Calculate 5% of total
+      const stashAwayYield = this.calculateAnnualInvestmentYield(stashAwayInvestment);
+      const advisorsYield = this.calculateAnnualInvestmentYield(advisorsInvestment);
+      // Add 5% to total
+      stashAwayInvestment += stashAwayYield;
+      advisorsInvestment += advisorsYield;
+      // Calculate fees on that value
+      currentStashAwayFees = this.calculateAnnualStashAwayFeesCharged(stashAwayInvestment);
+      currentAdvisorFees = this.calculateAnnualTraditionalAdvisorFeesCharged(advisorsInvestment);
+      // Add difference in fees to totalSavings
+      totalSavings += currentAdvisorFees - currentStashAwayFees;
+      // Minus fees from total investment value
+      stashAwayInvestment -= currentAdvisorFees;
+      advisorsInvestment -= currentAdvisorFees;
+    }
+    return totalSavings;
+  },
+
   updateAllValues(event) {
     this.setState({
       initialCashValue: Numeral(event.target.value)._value,
       feesCharged: {
-        stashAway: this.calculateAnnualStashAwayFees(Numeral(event.target.value)._value),
-        advisors: this.calculateAnnualTraditionalAdvisorFees(Numeral(event.target.value)._value)
+        stashAway: this.calculateAnnualStashAwayFeesCharged(Numeral(event.target.value)._value),
+        advisors: this.calculateInitialTraditionalAdvisorFee(Numeral(event.target.value)._value) + this.calculateAnnualTraditionalAdvisorFeesCharged(Numeral(event.target.value)._value - this.calculateInitialTraditionalAdvisorFee(Numeral(event.target.value)._value))
       },
       savings: this.calculateTotalSavingsMade(Numeral(event.target.value)._value, PeriodOfYears)
     });
