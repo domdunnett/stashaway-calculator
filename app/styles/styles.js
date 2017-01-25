@@ -1,12 +1,12 @@
 const styles = {
   mainContainer: {
-    // backgroundColor: 'transparent'
+    backgroundColor: 'transparent'
   },
   displayBox: {
     color: 'white'
   },
   displayRow: {
-    backgroundColor: 'green'
+    backgroundImage: 'linear-gradient(to right, #b4e391 0%,#61c419 100%,#b4e391 100%,#61c419 101%)'
   }
 }
 

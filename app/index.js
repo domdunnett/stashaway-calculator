@@ -174,7 +174,7 @@ const CalculatorContainer = React.createClass({
                 type="text"
                 placeholder="Your investment..."
                 onChange={this.updateAllValuesOnInput}
-                value={this.state.initialCashValue}
+                value={this.state.initialCashValue || 0}
                 />
             </div>
           </div>
