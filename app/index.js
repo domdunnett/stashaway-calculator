@@ -121,7 +121,7 @@ const CalculatorContainer = React.createClass({
     return totalSavings;
   },
 
-  updateAllValues(event) {
+  updateAllValuesOnInput(event) {
     this.setState({
       initialCashValue: Numeral(event.target.value)._value,
       feesCharged: {
@@ -132,6 +132,32 @@ const CalculatorContainer = React.createClass({
     });
   },
 
+  updateAllValuesOnButton(newValue) {
+    this.setState({
+      initialCashValue: newValue,
+      feesCharged: {
+        stashAway: this.calculateAnnualStashAwayFeesCharged(newValue),
+        advisors: this.calculateInitialTraditionalAdvisorFee(newValue) + this.calculateAnnualTraditionalAdvisorFeesCharged(newValue - this.calculateInitialTraditionalAdvisorFee(newValue))
+      },
+      savings: this.calculateTotalSavingsMade(newValue, PeriodOfYears)
+    });
+  },
+
+  increaseValues() {
+    if((this.state.initialCashValue + 10000) < 2000000) {
+      this.updateAllValuesOnButton(this.state.initialCashValue + 10000 )
+    }
+
+  },
+
+  decreaseValues() {
+    if(this.state.initialCashValue >= 10000) {
+      this.updateAllValuesOnButton(this.state.initialCashValue - 10000 )
+    } else {
+      this.updateAllValuesOnButton(0)
+    }
+  },
+
   render() {
     return (
       <div className="col-xs-offset-2 col-xs-8 jumbotron" style={styles.mainContainer}>
@@ -139,6 +165,7 @@ const CalculatorContainer = React.createClass({
           Enter an investment amount to see how much you save in fees compared to traditional advisors.
         </p>
         <div className="row form-group">
+          <button className="btn btn-default" onClick={this.increaseValues} style={{ display: 'inline'}}>+</button>
           <div className="col-xs-offset-4 col-xs-4">
             <div className="input-group">
               <span className="input-group-addon">S$</span>
@@ -146,11 +173,12 @@ const CalculatorContainer = React.createClass({
                 className="form-control"
                 type="text"
                 placeholder="Your investment..."
-                onChange={this.updateAllValues}
+                onChange={this.updateAllValuesOnInput}
                 value={this.state.initialCashValue}
                 />
             </div>
           </div>
+          <button className="btn btn-default" onClick={this.decreaseValues} style={{ display: 'inline'}}>-</button>
         </div>
         <div className="row text-center text-info container-fluid" style={styles.displayRow}>
           <div className="row">
