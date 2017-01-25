@@ -14,6 +14,7 @@ import Numeral from 'numeral';
 import styles from './styles/styles';
 import DisplayBox from './components/DisplayBox';
 import DisplayBoxHeader from './components/DisplayBoxHeader';
+import InvestmentInput from './components/InvestmentInput';
 import CurrentFees from './config/currentFees';
 
 const PeriodOfYears = 20;
@@ -22,13 +23,16 @@ const AverageInvestmentYield = 0.05;
 const CalculatorContainer = React.createClass({
   getInitialState() {
     return {
-      initialCashValue: 0,
+      initialCashValue: 50000,
       feesCharged: {
-        stashAway: 0,
-        advisors: 0
+        stashAway: 375,
+        advisors: 3450
       },
-      savings: 0
+      savings: 17589.57
     };
+    this.increaseValues = this.increaseValues.bind(this);
+    this.updateAllValuesOnInput = this.updateAllValuesOnInput.bind(this);
+    this.decreaseValues = this.decreaseValues.bind(this);
   },
 
   calculateAnnualStashAwayFeesCharged(value) {
@@ -164,22 +168,12 @@ const CalculatorContainer = React.createClass({
         <p className="lead text-center">
           Enter an investment amount to see how much you save in fees compared to traditional advisors.
         </p>
-        <div className="row form-group">
-          <button className="btn btn-default" onClick={this.increaseValues} style={{ display: 'inline'}}>+</button>
-          <div className="col-xs-offset-4 col-xs-4">
-            <div className="input-group">
-              <span className="input-group-addon">S$</span>
-              <input
-                className="form-control"
-                type="text"
-                placeholder="Your investment..."
-                onChange={this.updateAllValuesOnInput}
-                value={this.state.initialCashValue || 0}
-                />
-            </div>
-          </div>
-          <button className="btn btn-default" onClick={this.decreaseValues} style={{ display: 'inline'}}>-</button>
-        </div>
+        <InvestmentInput
+          handleIncrease={this.increaseValues}
+          handleManualInput={this.updateAllValuesOnInput}
+          value={this.state.initialCashValue || 0}
+          handleDecrease={this.decreaseValues}
+        />
         <div className="row text-center text-info container-fluid" style={styles.displayRow}>
           <div className="row">
             <DisplayBoxHeader header="StashAway's fees" />
